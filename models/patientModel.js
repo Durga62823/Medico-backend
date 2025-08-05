@@ -1,0 +1,75 @@
+const mongoose = require('mongoose');
+
+const patientSchema = new mongoose.Schema({
+  full_name: {
+    type: String,
+    required: [true, 'Full name is required'],
+  },
+  date_of_birth: {
+    type: Date,
+    required: [true, 'Date of birth is required'],
+  },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other'],
+    required: true,
+  },
+  blood_type: {
+    type: String,
+    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+  },
+  phone: {
+    type: String,
+    match: [/^\+?[1-9]\d{1,14}$/, 'Please use a valid phone number'],
+  },
+  email: {
+    type: String,
+    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
+  },
+  address: {
+    type: String,
+  },
+  emergency_contact_name: {
+    type: String,
+  },
+  emergency_contact_phone: {
+    type: String,
+    match: [/^\+?[1-9]\d{1,14}$/, 'Please use a valid phone number'],
+  },
+  medical_history: {
+    type: String,  // Could be expanded to array of conditions
+  },
+  allergies: [{
+    type: String,
+  }],
+  current_medications: [{
+    type: String,
+  }],
+  admission_date: {
+    type: Date,
+  },
+  discharge_date: {
+    type: Date,
+  },
+  assigned_doctor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',  // Reference to User model (Doctor)
+  },
+  assigned_nurse: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',  // Reference to User model (Nurse)
+  },
+  status: {
+    type: String,
+    enum: ['Active', 'Discharged', 'Transferred'],
+    default: 'Active',
+  },
+}, {
+  timestamps: true,
+});
+
+// Indexing for common queries
+patientSchema.index({ full_name: 'text' });  // Text search for names
+patientSchema.index({ assigned_doctor: 1, status: 1 });
+
+module.exports = mongoose.model('Patient', patientSchema);
