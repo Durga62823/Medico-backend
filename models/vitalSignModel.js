@@ -1,9 +1,10 @@
+// vitalSignModel.js (Schema) - Updated with more alert possibilities in comments
 const mongoose = require('mongoose');
 
 const vitalSignSchema = new mongoose.Schema({
   patient_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Patient',
+    ref: 'Patient', 
     required: [true, 'Patient ID is required'],
   },
   recorded_by: {
@@ -24,30 +25,32 @@ const vitalSignSchema = new mongoose.Schema({
     min: 0,
   },
   temperature: {
-    type: Number,  // Celsius
+    type: Number, 
     min: 0,
   },
   oxygen_saturation: {
-    type: Number,  // %
+    type: Number,
     min: 0,
     max: 100,
   },
   respiratory_rate: {
-    type: Number,  // breaths/min
+    type: Number,
     min: 0,
   },
   glucose_level: {
-    type: Number,  // mg/dL
+    type: Number, 
     min: 0,
   },
   notes: {
     type: String,
   },
+  alerts: [{
+    type: String,
+  }],
 }, {
-  timestamps: { createdAt: 'recorded_at' },  // Custom timestamp field
+  timestamps: { createdAt: 'recorded_at' },
 });
 
-// Indexing for quick queries by patient and time
 vitalSignSchema.index({ patient_id: 1, recorded_at: -1 });
 
 module.exports = mongoose.model('VitalSign', vitalSignSchema);

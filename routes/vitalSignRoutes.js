@@ -1,3 +1,4 @@
+// vitalSignRoutes.js (Routes) - Unchanged, as alert logic is in controller
 const express = require('express');
 const { getVitals, recordVitals, getTrends } = require('../controllers/vitalSignController');
 const { protect, authorize } = require('../middlewares/auth');

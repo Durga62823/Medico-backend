@@ -3,7 +3,7 @@ const User = require('../models/userModel');
 
 // Generate JWT
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });  
 };
 
 // Register user with professional email validation
@@ -11,8 +11,9 @@ exports.register = async (req, res) => {
   const { email, password, full_name, role, license_number, department, phone } = req.body;
 
   // Professional email validation for staff
+  const normalizedRole = String(role || '').toLowerCase();
   const isProfessionalEmail = /\.(com|org|edu)$/i.test(email);  // Basic check; enhance as needed
-  if (['Doctor', 'Nurse'].includes(role) && !isProfessionalEmail) {
+  if (['doctor', 'nurse'].includes(normalizedRole) && !isProfessionalEmail) {
     return res.status(400).json({ message: 'Professional email required for healthcare staff' });
   }
 
@@ -20,7 +21,7 @@ exports.register = async (req, res) => {
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    const user = await User.create({ email, password, full_name, role, license_number, department, phone });
+    const user = await User.create({ email, password, full_name, role: normalizedRole, license_number, department, phone });
     if (user) {
       res.status(201).json({
         _id: user._id,

@@ -1,3 +1,4 @@
+// models/patient.js (Schema) - Ensure assigned_doctor and assigned_nurse fields exist
 const mongoose = require('mongoose');
 
 const patientSchema = new mongoose.Schema({
@@ -36,9 +37,9 @@ const patientSchema = new mongoose.Schema({
     type: String,
     match: [/^\+?[1-9]\d{1,14}$/, 'Please use a valid phone number'],
   },
-  medical_history: {
-    type: String,  // Could be expanded to array of conditions
-  },
+  medical_history: [{
+    type: String,  // Changed to array for multiple history entries (better for EHR)
+  }],
   allergies: [{
     type: String,
   }],
@@ -64,6 +65,15 @@ const patientSchema = new mongoose.Schema({
     enum: ['Active', 'Discharged', 'Transferred'],
     default: 'Active',
   },
+  // NEW: References for vitals and medical records (for tracking and access)
+  vitals: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'VitalSign',  // Link to VitalSign model for history
+  }],
+  medical_records: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'MedicalNote',  // Link to MedicalNote model for EHR access
+  }],
 }, {
   timestamps: true,
 });
@@ -71,5 +81,6 @@ const patientSchema = new mongoose.Schema({
 // Indexing for common queries
 patientSchema.index({ full_name: 'text' });  // Text search for names
 patientSchema.index({ assigned_doctor: 1, status: 1 });
+patientSchema.index({ assigned_nurse: 1, status: 1 });
 
 module.exports = mongoose.model('Patient', patientSchema);
