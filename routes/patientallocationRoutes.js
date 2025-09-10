@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const controller = require('../controllers/patientallocationController');
+router.post('/', controller.createAllocation);
+router.get('/', controller.getAllocations);
+router.get('/:id', controller.getAllocationById);
+router.put('/:id', controller.updateAllocation);
+router.delete('/:id', controller.deleteAllocation);
+router.post('/:id/discharge', controller.dischargeAllocation);
+module.exports = router;

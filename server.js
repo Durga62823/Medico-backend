@@ -18,6 +18,7 @@ const documentRoutes = require('./routes/documentRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const alertRoutes = require('./routes/alertRoutes');
+const patientAllocationRoutes = require('./routes/patientallocationRoutes');
 const app = express();
 
 // Connect to database
@@ -53,7 +54,7 @@ app.use('/api', documentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api', analyticsRoutes);
 app.use('/api/alerts', alertRoutes);
-
+app.use('/api/patient-allocations', patientAllocationRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
