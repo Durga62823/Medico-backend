@@ -1,9 +1,29 @@
 const PatientAllocation = require('../models/patientallocationModel');
+const Patient = require('../models/patientModel');
 
 // Create new patient allocation
 exports.createAllocation = async (req, res) => {
   try {
-    const allocation = new PatientAllocation(req.body);
+    const { patientId, room, department, status, day, primaryDiagnosis, alerts } = req.body;
+
+    // Fetch patient to get assigned doctor and nurse
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    // Create allocation
+    const allocation = new PatientAllocation({
+      patient: patient._id,
+      name: patient.full_name,
+      room,
+      department,
+      status,
+      day,
+      primaryDiagnosis,
+      alerts
+    });
+    console.log(allocation)
     await allocation.save();
     res.status(201).json(allocation);
   } catch (err) {
@@ -14,7 +34,21 @@ exports.createAllocation = async (req, res) => {
 // Get all patient allocations
 exports.getAllocations = async (req, res) => {
   try {
-    const allocations = await PatientAllocation.find();
+    const userId = req.user._id;
+    const role = req.user.role;
+
+    let query = {};
+
+    if (role === "Doctor") {
+      query = { "patient": { $in: await Patient.find({ assigned_doctor: userId }).distinct("_id") } };
+    } else if (role === "Nurse") {
+      query = { "patient": { $in: await Patient.find({ assigned_nurse: userId }).distinct("_id") } };
+    }
+
+    const allocations = await PatientAllocation.find(query)
+      .populate("patient")  // populate patient details
+      .sort({ lastUpdated: -1 });
+
     res.json(allocations);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -58,6 +92,7 @@ exports.deleteAllocation = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 exports.dischargeAllocation = async (req, res) => {
   try {
     const allocation = await PatientAllocation.findByIdAndUpdate(
@@ -70,17 +105,5 @@ exports.dischargeAllocation = async (req, res) => {
     res.json({ message: "Patient discharged", allocation });
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
-};
-
-exports.getAllocations = async (req, res) => {
-  try {
-    const userRole = req.user.role; // Assuming req.user is populated by auth middleware
-    const filter = userRole === "admin" ? {} : { discharged: false };
-    const allocations = await PatientAllocation.find(filter);
-    res.json(allocations);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-    console.error("Error in getAllocations:", err);
   }
 };

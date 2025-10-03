@@ -16,11 +16,7 @@ const vitalSignSchema = new mongoose.Schema({
     type: Number,  // bpm
     min: 0,
   },
-  blood_pressure_systolic: {
-    type: Number,
-    min: 0,
-  },
-  blood_pressure_diastolic: {
+  blood_pressure: {
     type: Number,
     min: 0,
   },
@@ -32,21 +28,7 @@ const vitalSignSchema = new mongoose.Schema({
     type: Number,
     min: 0,
     max: 100,
-  },
-  respiratory_rate: {
-    type: Number,
-    min: 0,
-  },
-  glucose_level: {
-    type: Number, 
-    min: 0,
-  },
-  notes: {
-    type: String,
-  },
-  alerts: [{
-    type: String,
-  }],
+  }
 }, {
   timestamps: { createdAt: 'recorded_at' },
 });

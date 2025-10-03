@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/patientallocationController');
+const { protect, authorize } = require('../middlewares/auth');
 router.post('/', controller.createAllocation);
-router.get('/', controller.getAllocations);
+router.get('/',protect, authorize('Admin', 'Doctor', 'Nurse'), controller.getAllocations);
 router.get('/:id', controller.getAllocationById);
 router.put('/:id', controller.updateAllocation);
 router.delete('/:id', controller.deleteAllocation);
